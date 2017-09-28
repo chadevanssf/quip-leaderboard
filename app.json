@@ -1,0 +1,8 @@
+{
+  "name": "quip-chat-leaderboard",
+  "description": "Quip Chat Leaderboard",
+  "repository": "https://github.com/chadevanssf/quip-chat-leaderboard",
+  "addons": [
+    "mongolab"
+  ]
+}

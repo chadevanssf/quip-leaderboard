@@ -22,6 +22,9 @@ var dbHost = process.env.MONGODB_URI || "mongodb://localhost:27017/fusion_demo";
 
 var PORT = process.env.PORT || 3300;
 
+var THREADID = process.env.QUIP_THREADID;
+var COLLECTION = process.env.MONGODB_COLLECTION;
+
 //DB Object
 var dbObject;
 
@@ -37,7 +40,7 @@ MongoClient.connect(dbHost, function(err, db){
 });
 
 function rawData(responseObj) {
-  var cll = dbObject.collection("pitb");
+  var cll = dbObject.collection(COLLECTION);
 
   cll.aggregate([
     { $match: { yearmonth: { $gte: "2017-08" } } },
@@ -49,20 +52,59 @@ function rawData(responseObj) {
 }
 
 function refreshData(responseObj) {
-  var cll = dbObject.collection("pitb");
 
-  //get rid of the old stuff
-  //cll.deleteMany({});
+  var months = getMonths();
+  var minMonth = months[months.length - 1];
 
-  Quip.msg.getMessages({
-    "thread_id": "lfjQAAhrQ5cd",
-    "count": 1000,
-    "max_created_usec": 1504206898932845
-  }, function(error, data) {
-    if (error) {
-      throw error;
+  //console.log("Min Month " + minMonth);
+
+  function waterfallOver(iterator, callback) {
+
+      var currentMonth;
+
+      function processNext(item) {
+        //console.log("Starting processNext " + currentMonth + ", " + item.yearmonth + ", " + item.date);
+        currentMonth = item.yearmonth;
+
+        // if nextItemIndex equals the number of items in list, then we're done
+        if(currentMonth && currentMonth < minMonth) {
+          callback(item);
+        } else {
+          // otherwise, call the iterator on the next item
+          iterator(item, processNext);
+        }
+      }
+
+      // instead of starting all the iterations, we only start the 1st one
+      iterator(null, processNext);
+  }
+
+  waterfallOver(function (item, processNext) {
+    //console.log("Starting waterfallOver");
+    var options = {
+      "thread_id": THREADID,
+      "count": 100
+    };
+
+    if (item) {
+      //console.log("max " + item.created_usec + " on this date " + item.date);
+      options.max_created_usec = item.created_usec;
     }
 
+    Quip.msg.getMessages(options, function(error, data) {
+      if (error) {
+        throw error;
+      }
+
+      var item = processItems(data);
+
+      processNext(item);
+    });
+  }, function (item) {
+    responseObj.json([{complete: "true"}, item]);
+  });
+
+  function processItems(data) {
     // clean the data so we can query it better
     var item;
     for (var index in data) {
@@ -77,44 +119,51 @@ function refreshData(responseObj) {
       item.date = dateFormat(d, "yyyy-mm-dd");
       item.yearmonth = dateFormat(d, "yyyy-mm");
       //console.log(item);
-      cll.replaceOne(
+      dbObject.collection(COLLECTION).replaceOne(
         { "id": item.id },
         item,
         { upsert: true }
       );
     }
-    // add the new stuff in
-    //cll.insertMany(data);
+    return item;
+  }
+}
 
-    responseObj.json([{complete: "true"}, item]);
-  });
+function getMonths() {
+  var numberOfMonths = 2;
+  var months = [];
+  var anchorDate = new Date();
+  for (var subtract = 0; subtract < numberOfMonths; subtract++) {
+    var targetDate = new Date();
+    targetDate.setMonth(anchorDate.getMonth() - subtract, 1);
+    months.push(dateFormat(targetDate, "yyyy-mm"));
+  }
+
+  return months;
 }
 
 function getData(responseObj) {
-  var firstThisMonth = new Date();
-  firstThisMonth.setDate(1);
-  var thisMonth = dateFormat(firstThisMonth, "yyyy-mm");
+  var months = getMonths();
+  var minMonth = months[months.length - 1];
 
-  var firstLastMonth = new Date();
-  firstLastMonth.setMonth(firstThisMonth.getMonth() - 1, 1);
-  var lastMonth = dateFormat(firstLastMonth, "yyyy-mm");
-
-  var monthsToUse = {
-    thisMonth: {
-      label: thisMonth,
+  var monthsToUse = {};
+  for (var i = 0; i < months.length; i++) {
+    monthsToUse[months[i]] = {
+      label: months[i],
       data: []
-    },
-    lastMonth: {
-      label: lastMonth,
-      data: []
-    }
-  };
+    };
+  }
 
-  //use the find() API and pass an empty query object to retrieve all records
-  dbObject.collection("pitb").find({
-    yearmonth: { $gte: lastMonth },
-    count: { $gt: 0 }
-  }).toArray(function(err, docs){
+  dbObject.collection(COLLECTION).aggregate([
+    { $match: { yearmonth: { $gte: minMonth } } },
+    { $group: {
+      _id: { author_name: "$author_name", yearmonth: "$yearmonth" },
+      author_name: { $first: "$author_name" },
+      yearmonth: { $first: "$yearmonth" },
+      total: { $sum: "$count" }
+    } },
+    { $sort: { total: -1 } }
+  ]).toArray(function(err, docs){
     if ( err ) {
       throw err;
     }
@@ -127,41 +176,32 @@ function getData(responseObj) {
       var doc = docs[index];
 
       if (!collector[doc.author_name]) {
-        collector[doc.author_name] = {
-          "currMonth": 0,
-          "prevMonth": 0
-        };
+        collector[doc.author_name] = {};
+        for (var d = 0; d < months.length; d++) {
+          collector[doc.author_name][months[d]] = 0;
+        }
       }
-      if (doc.yearmonth === thisMonth) {
-        collector[doc.author_name].currMonth = doc.count;
-      } else if (doc.yearmonth === lastMonth) {
-        collector[doc.author_name].prevMonth = doc.count;
-      }
+      collector[doc.author_name][doc.yearmonth] += doc.total;
     }
 
     for (var item in collector) {
       //catArray.push({"label": item});
       catArray.push(item);
 
-      //seriesOne.push({"value" : collector[item].currMonth});
-      monthsToUse.thisMonth.data.push(collector[item].currMonth);
-
-      //seriesTwo.push({"value" : collector[item].prevMonth});
-      monthsToUse.lastMonth.data.push(collector[item].prevMonth);
+      for (var c = 0; c < months.length; c++) {
+        monthsToUse[months[c]].data.push(collector[item][months[c]]);
+      }
     }
 
-    var datasets = [
-      {
-        //"seriesname" : "Current Month",
-        "label": monthsToUse.thisMonth.label,
-        "data" : monthsToUse.thisMonth.data
-      },
-      {
-        //"seriesname" : "Previous Month",
-        "label": monthsToUse.lastMonth.label,
-        "data" : monthsToUse.lastMonth.data
-      }
-    ];
+    var datasets = [];
+    for (var s = 0; s < months.length; s++) {
+      newDS = {
+        //"seriesname" : monthsToUse[months[s]].label,
+        "label": monthsToUse[months[s]].label,
+        "data" : monthsToUse[months[s]].data
+      };
+      datasets.push(newDS);
+    }
 
     var response = {
       "datasets" : datasets,
