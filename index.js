@@ -56,38 +56,31 @@ function refreshData(responseObj) {
   var months = getMonths();
   var minMonth = months[months.length - 1];
 
-  //console.log("Min Month " + minMonth);
-
   function waterfallOver(iterator, callback) {
 
       var currentMonth;
 
       function processNext(item) {
-        //console.log("Starting processNext " + currentMonth + ", " + item.yearmonth + ", " + item.date);
         currentMonth = item.yearmonth;
 
-        // if nextItemIndex equals the number of items in list, then we're done
         if(currentMonth && currentMonth < minMonth) {
           callback(item);
         } else {
-          // otherwise, call the iterator on the next item
           iterator(item, processNext);
         }
       }
 
-      // instead of starting all the iterations, we only start the 1st one
       iterator(null, processNext);
   }
 
   waterfallOver(function (item, processNext) {
-    //console.log("Starting waterfallOver");
     var options = {
       "thread_id": THREADID,
       "count": 100
     };
 
     if (item) {
-      //console.log("max " + item.created_usec + " on this date " + item.date);
+      // scope the returned messages in the thread to earlier than our last one
       options.max_created_usec = item.created_usec;
     }
 
@@ -176,6 +169,7 @@ function getData(responseObj) {
       var doc = docs[index];
 
       if (!collector[doc.author_name]) {
+        // first time seeing this author, fill out all the values for the months
         collector[doc.author_name] = {};
         for (var d = 0; d < months.length; d++) {
           collector[doc.author_name][months[d]] = 0;
@@ -185,7 +179,6 @@ function getData(responseObj) {
     }
 
     for (var item in collector) {
-      //catArray.push({"label": item});
       catArray.push(item);
 
       for (var c = 0; c < months.length; c++) {
@@ -196,7 +189,6 @@ function getData(responseObj) {
     var datasets = [];
     for (var s = 0; s < months.length; s++) {
       newDS = {
-        //"seriesname" : monthsToUse[months[s]].label,
         "label": monthsToUse[months[s]].label,
         "data" : monthsToUse[months[s]].data
       };
@@ -205,7 +197,6 @@ function getData(responseObj) {
 
     var response = {
       "datasets" : datasets,
-      //"categories" : catArray
       "labels": catArray
     };
     responseObj.json(response);
