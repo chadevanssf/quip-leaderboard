@@ -4,6 +4,8 @@
   "description": "Platform Leader Board for Quip contributions",
   "main": "index.js",
   "dependencies": {
+    "dateformat": "^3.0.2",
+    "dotenv": "^4.0.0",
     "express": "^4.13.3",
     "express-handlebars": "^2.0.1",
     "mongodb": "^2.0.42",

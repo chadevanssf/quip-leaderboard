@@ -3,18 +3,17 @@ var chartData;
 $(function(){
   $.ajax({
 
-    url: 'http://localhost:3300/leaderboardData',
+    url: '/leaderboardData',
     type: 'GET',
     success : function(data) {
-      chartData = data;
       var template = Handlebars.compile($("#tabular-template").html());
       $("#table-location").html(template(data));
 
       var chartProperties = {
-        "caption": "Variation of Petrol and Diesel price in Bangalore",
-        "numberprefix": "Rs",
-        "xAxisName": "Month",
-        "yAxisName": "Price"
+        "caption": "Leaderboard for Platform Party in the Back",
+        "xAxisName": "Author",
+        "yAxisName": "Likes",
+        "theme": "zune"
       };
 
       var categoriesArray = [{
@@ -22,7 +21,7 @@ $(function(){
       }];
 
       var lineChart = new FusionCharts({
-        type: 'msline',
+        type: 'mscolumn2d',
         renderAt: 'chart-location',
         width: '1000',
         height: '600',
@@ -30,7 +29,7 @@ $(function(){
         dataSource: {
           chart: chartProperties,
           categories : categoriesArray,
-          dataset : data.dataset
+          dataset : data.datasets
         }
       });
       lineChart.render();
