@@ -16,7 +16,7 @@ $(function(){
         },
         title: {
           display: true,
-          text: "Leaderboard for Platform Party in the Back",
+          text: "Leaderboard for " + data.title,
         },
         scales: {"yAxes": [
           {"ticks":{"beginAtZero":true}}

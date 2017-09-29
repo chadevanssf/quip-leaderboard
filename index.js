@@ -147,59 +147,73 @@ function getData(responseObj) {
     };
   }
 
-  dbObject.collection(COLLECTION).aggregate([
-    { $match: { yearmonth: { $gte: minMonth } } },
-    { $group: {
-      _id: { author_name: "$author_name", yearmonth: "$yearmonth" },
-      author_name: { $first: "$author_name" },
-      yearmonth: { $first: "$yearmonth" },
-      total: { $sum: "$count" }
-    } },
-    { $sort: { total: -1 } }
-  ]).toArray(function(err, docs){
-    if ( err ) {
-      throw err;
+  var response = {};
+
+  var quipOptions = {
+    "id": THREADID
+  };
+
+  Quip.th.getThread(quipOptions, function(error, data) {
+    if (error) {
+      throw error;
     }
 
-    var collector = {};
+    response.title = data.thread.title;
 
-    var catArray = [];
+    dbObject.collection(COLLECTION).aggregate([
+      { $match: { yearmonth: { $gte: minMonth } } },
+      { $group: {
+        _id: { author_name: "$author_name", yearmonth: "$yearmonth" },
+        author_name: { $first: "$author_name" },
+        yearmonth: { $first: "$yearmonth" },
+        total: { $sum: "$count" }
+      } },
+      { $sort: { total: -1 } }
+    ]).toArray(function(err, docs){
+      if ( err ) {
+        throw err;
+      }
 
-    for (var index in docs) {
-      var doc = docs[index];
+      var collector = {};
 
-      if (!collector[doc.author_name]) {
-        // first time seeing this author, fill out all the values for the months
-        collector[doc.author_name] = {};
-        for (var d = 0; d < months.length; d++) {
-          collector[doc.author_name][months[d]] = 0;
+      var catArray = [];
+
+      for (var index in docs) {
+        var doc = docs[index];
+
+        if (!collector[doc.author_name]) {
+          // first time seeing this author, fill out all the values for the months
+          collector[doc.author_name] = {};
+          for (var d = 0; d < months.length; d++) {
+            collector[doc.author_name][months[d]] = 0;
+          }
+        }
+        collector[doc.author_name][doc.yearmonth] += doc.total;
+      }
+
+      for (var item in collector) {
+        catArray.push(item);
+
+        for (var c = 0; c < months.length; c++) {
+          monthsToUse[months[c]].data.push(collector[item][months[c]]);
         }
       }
-      collector[doc.author_name][doc.yearmonth] += doc.total;
-    }
 
-    for (var item in collector) {
-      catArray.push(item);
-
-      for (var c = 0; c < months.length; c++) {
-        monthsToUse[months[c]].data.push(collector[item][months[c]]);
+      var datasets = [];
+      for (var s = 0; s < months.length; s++) {
+        newDS = {
+          "label": monthsToUse[months[s]].label,
+          "data" : monthsToUse[months[s]].data
+        };
+        datasets.push(newDS);
       }
-    }
 
-    var datasets = [];
-    for (var s = 0; s < months.length; s++) {
-      newDS = {
-        "label": monthsToUse[months[s]].label,
-        "data" : monthsToUse[months[s]].data
-      };
-      datasets.push(newDS);
-    }
+      response.datasets = datasets;
+      response.labels = catArray;
 
-    var response = {
-      "datasets" : datasets,
-      "labels": catArray
-    };
-    responseObj.json(response);
+      responseObj.json(response);
+    });
+
   });
 }
 
