@@ -24,6 +24,7 @@ var PORT = process.env.PORT || 3300;
 
 var THREADID = process.env.QUIP_THREADID;
 var COLLECTION = process.env.MONGODB_COLLECTION;
+var MONTHS = process.env.QUIP_MONTHS || 3;
 
 //DB Object
 var dbObject;
@@ -123,10 +124,9 @@ function refreshData(responseObj) {
 }
 
 function getMonths() {
-  var numberOfMonths = 2;
   var months = [];
   var anchorDate = new Date();
-  for (var subtract = 0; subtract < numberOfMonths; subtract++) {
+  for (var subtract = 0; subtract < MONTHS; subtract++) {
     var targetDate = new Date();
     targetDate.setMonth(anchorDate.getMonth() - subtract, 1);
     months.push(dateFormat(targetDate, "yyyy-mm"));
