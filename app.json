@@ -1,7 +1,7 @@
 {
-  "name": "quip-chat-leaderboard",
-  "description": "Quip Chat Leaderboard",
-  "repository": "https://github.com/chadevanssf/quip-chat-leaderboard",
+  "name": "quip-leaderboard",
+  "description": "Quip Leaderboard",
+  "repository": "https://github.com/chadevanssf/quip-leaderboard",
   "addons": [
     "mongolab"
   ]

@@ -230,6 +230,7 @@ app.set("view engine", "handlebars");
 
 //Defining middleware to serve static files
 app.use("/public", express.static("public"));
+app.use("/assets", express.static("node_modules/@salesforce-ux/design-system/assets"));
 
 app.get("/leaderboardData", function(req, res) {
   getData(res);

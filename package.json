@@ -1,9 +1,11 @@
 {
-  "name": "quip-platform-leader-board",
+  "name": "quip-leaderboard",
   "version": "1.0.0",
-  "description": "Platform Leader Board for Quip contributions",
+  "description": "Leader Board for Quip Chat contributions",
+  "repository": "https://github.com/chadevanssf/quip-leaderboard",
   "main": "index.js",
   "dependencies": {
+    "@salesforce-ux/design-system": "^2.4.3",
     "dateformat": "^3.0.2",
     "dotenv": "^4.0.0",
     "express": "^4.13.3",

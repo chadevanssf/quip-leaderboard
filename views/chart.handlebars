@@ -1,15 +1,64 @@
-<div id="table-location">
+<div class="slds-grid slds-wrap">
+      <nav class="slds-col slds-size--1-of-1">
+        <div class="slds-page-header" style="">
+          <div class="slds-media">
+            <div class="slds-media__figure">
+              <span class="slds-icon_container slds-icon-utility-chart" title="Description of icon when needed">
+                <svg class="slds-icon slds-page-header__icon" aria-hidden="true" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 192.4 320.4 137.4" enable-background="new 0 192.4 320.4 137.4" {http:="" www.w3.org="" xml="" 1998="" namespace}space="preserve">
+                  <path id="logo-text" fill="#3D3D3D" d="M89.2,286.2l13.5,13.5l-14.9,14.9l-17.3-17.3c-5.8,1.8-11.7,2.8-17.9,2.8   c-33-0.2-52.6-25-52.6-52.2s19.7-52,52.6-52s52.4,24.8,52.4,52C105.5,262.4,99.5,276.1,89.2,286.2z M52.6,216.5   c-18.1,0-29,15.1-29,31.4s10.9,31.4,29,31.4l0,0v-14.9h14.9l5.8,5.8c5.4-6.2,8.3-14.1,8.3-22.4C81.6,231.6,70.7,216.5,52.6,216.5z    M189.4,280.5c-1.2,3.9-3.5,7.3-6.3,10c-3.3,3.3-7.3,5.5-11.8,6.9c-9.8,3.1-20.2,3.1-30,0c-4.5-1.4-8.4-3.7-11.8-6.9   c-2.9-2.9-5.1-6.3-6.3-10c-1.4-5.7-2-11.6-1.8-17.6v-34.9h22.2v35.7c0,5.9,1,10.4,2.9,12.9c1.8,2.4,5.7,3.9,10,3.9   c4.3,0,8.2-1.4,10-3.9c1.8-2.4,2.9-7.1,2.9-12.9l0-35.7h22.2l0,34.7C191.4,268.7,190.8,274.6,189.4,280.5L189.4,280.5z M205.7,299.8   H228V228h-22.2V299.8L205.7,299.8z M281.6,245.1c10,0,16.5,8.2,16.5,18c0,9.8-6.7,18-16.5,18c-10.2,0-16.9-8.2-16.9-18   C264.7,253.2,271.4,245.1,281.6,245.1L281.6,245.1z M264.5,228h-22.2v101.8h22.2v-41.8c3.3,6.3,12.4,11.8,21.6,11.8   c20.2,0,34.3-15.9,34.3-36.7c0-20.8-14.1-36.7-34.3-36.7c-9.2,0-18.4,5.5-21.6,11.8v-10V228z M202.4,206.5   c-0.2,8,6.1,14.5,14.1,14.7c8,0.2,14.5-6.1,14.7-14.1c0.2-8-6.1-14.5-14.1-14.7c-0.2,0-0.2,0-0.4,0   C208.8,192.2,202.4,198.5,202.4,206.5C202.4,206.3,202.4,206.3,202.4,206.5L202.4,206.5z">
+                  </path>
+                </svg>
+              </span>
+            </div>
+            <div class="slds-media__body">
+              <h1 class="slds-page-header__title slds-truncate slds-align-middle" title="Leaderboard">Leaderboard</h1>
+              <p class="slds-text-body_small slds-line-height_reset">Who is in the lead?</p>
+            </div>
+            <div class="slds-col slds-no-flex slds-grid slds-align-top slds-p-bottom_xx-small">
+              <div class="slds-button-group" role="group">
+                <!-- Place this tag where you want the button to render. -->
+                <a class="github-button" href="https://github.com/chadevanssf/quip-leaderboard/fork" data-size="large" aria-label="Fork chadevanssf/quip-leaderboard on GitHub">Fork</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <main class="slds-col slds-size--1-of-1">
+        <article class="slds-card">
+          <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+              <div class="slds-media__figure">
+                <span class="slds-icon_container slds-icon-standard-dashboard" title="Leaderboard">
+                  <svg class="slds-icon slds-icon_small" aria-hidden="true">
+                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/icons/standard-sprite/svg/symbols.svg#dashboard" />
+                  </svg>
+                </span>
+              </div>
+              <div class="slds-media__body">
+                <h2>
+                  <a href="javascript:void(0);" class="slds-card__header-link slds-truncate">
+                    <span class="slds-text-heading_small" id="chart-title">Leaderboard</span>
+                  </a>
+                </h2>
+              </div>
+            </header>
+            <div class="slds-no-flex">
+              <a href="/refreshLeaderboardData" class="slds-button slds-button_brand">Refresh from Thread</a>
+            </div>
+          </div>
+          <div class="slds-card__body slds-card__body_inner">
+            <div id="chart-location">
+              <canvas id="chart" width="1068" height="534" class="chartjs-render-monitor" style="display: block; width: 1068px; height: 534px;"></canvas>
+            </div>
+          </div>
+        </article>
+      </main>
+      <nav class="slds-col slds-size--1-of-1">
+        <div id="table-location">
 
-</div>
-<br/>
-<!-- Location where the chart will be added -->
-<div id="chart-location">
-  <canvas id="chart" width="1068" height="534" class="chartjs-render-monitor" style="display: block; width: 1068px; height: 534px;"></canvas>
-</div>
-
-<a href="/refreshLeaderboardData" class="btn btn-primary">Refresh from Thread</a>
-
-<a href="https://github.com/chadevanssf/quip-leaderboard" class="btn btn-success">Fork me on Github</a>
+        </div>
+      </nav>
+    </div>
 
 <script src="/public/js/chartjs_build.js" charset="utf-8"></script>
 

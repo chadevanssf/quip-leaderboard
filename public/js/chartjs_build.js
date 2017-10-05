@@ -9,13 +9,15 @@ $(function(){
       //var template = Handlebars.compile($("#tabular-template").html());
       //$("#table-location").html(template(data));
 
+      $("#chart-title").text("Leaderboard for " + data.title);
+
       var chartOptions = {
         responsive: true,
         legend: {
           position: "top"
         },
         title: {
-          display: true,
+          display: false,
           text: "Leaderboard for " + data.title,
         },
         scales: {"yAxes": [
